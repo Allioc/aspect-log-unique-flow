@@ -1,5 +1,6 @@
 .idea/
 out/
-flow.log
+app_logs/
+flow-old.log
 flow-unique.log
 

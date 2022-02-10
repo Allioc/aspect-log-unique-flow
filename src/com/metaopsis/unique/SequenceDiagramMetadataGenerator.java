@@ -17,8 +17,8 @@ import java.util.logging.Logger;
  * 2022-02-04 00:01:43 DEBUG Trace:18 - Aspect-Exits method: boolean com.metaopsis.utilities.LicenseValidator.retrieveLicense(String)
  * 2022-02-04 00:01:43 DEBUG Trace:9 - Aspect-Enters on method: String com.metaopsis.utilities.Encryptor.decrypt(String)
  * */
-public class ClassDiagramGenerator extends Stack<String> {
-    private static final Logger log = Logger.getLogger(ClassDiagramGenerator.class.getName());
+public class SequenceDiagramMetadataGenerator extends Stack<String> {
+    private static final Logger log = Logger.getLogger(SequenceDiagramMetadataGenerator.class.getName());
 
     /**
      * Initialize to Actor by default. The starting point.
@@ -30,7 +30,7 @@ public class ClassDiagramGenerator extends Stack<String> {
      * */
     private Writer writer;
 
-    public ClassDiagramGenerator(Writer writer){
+    public SequenceDiagramMetadataGenerator(Writer writer){
         super();
         this.writer = writer;
         push(actor);
@@ -105,9 +105,8 @@ public class ClassDiagramGenerator extends Stack<String> {
        // 1. Peek to Ensure the top node that matches the Existing Node
         String source = peek();
 
-        if(source.equalsIgnoreCase(className)){
-            log.info("Works as Expected");
-        }else{
+        // An Exit step should match with an Entry Step. Otherwise,
+        if(!source.equalsIgnoreCase(className)){
             throw new RuntimeException("UnExpected Node");
         }
 
