@@ -17,7 +17,7 @@ import java.util.logging.Logger;
  * 2022-02-04 00:01:43 DEBUG Trace:18 - Aspect-Exits method: boolean com.metaopsis.utilities.LicenseValidator.retrieveLicense(String)
  * 2022-02-04 00:01:43 DEBUG Trace:9 - Aspect-Enters on method: String com.metaopsis.utilities.Encryptor.decrypt(String)
  * */
-public class SequenceDiagramMetadataGenerator extends Stack<String> {
+public class SequenceDiagramMetadataGenerator {
     private static final Logger log = Logger.getLogger(SequenceDiagramMetadataGenerator.class.getName());
 
     /**
@@ -26,14 +26,23 @@ public class SequenceDiagramMetadataGenerator extends Stack<String> {
     private String actor = "Actor";
 
     /**
+     * Stack to handle the Sequence flow from one class to another.
+     * */
+    private Stack<String> logStack;
+
+    /**
      * Writes the output with PlantUml specific syntax.
      * */
     private Writer writer;
 
+    /**
+     * Initialize the Stack and Push the default Actor to begin with.
+     */
     public SequenceDiagramMetadataGenerator(Writer writer){
-        super();
         this.writer = writer;
-        push(actor);
+        logStack = new Stack<>();
+
+        logStack.push(actor);
     }
 
     /**
@@ -65,7 +74,7 @@ public class SequenceDiagramMetadataGenerator extends Stack<String> {
      * */
     private void addEnterStep(String className) throws IOException {
         // 1. Peek and set source = "peekedValue"
-        String source  = peek();
+        String source  = logStack.peek();
 
         // 2. Set the NewNode as Target.
         String target = className;
@@ -74,7 +83,7 @@ public class SequenceDiagramMetadataGenerator extends Stack<String> {
         writePlantUmlExpression(true, source, target);
 
         // 4. Push NewNode into Stack.
-        push(className);
+        logStack.push(className);
     }
 
     /**
@@ -103,7 +112,7 @@ public class SequenceDiagramMetadataGenerator extends Stack<String> {
      * */
     private void addExitStep(String className) throws IOException {
        // 1. Peek to Ensure the top node that matches the Existing Node
-        String source = peek();
+        String source = logStack.peek();
 
         // An Exit step should match with an Entry Step. Otherwise,
         if(!source.equalsIgnoreCase(className)){
@@ -112,11 +121,11 @@ public class SequenceDiagramMetadataGenerator extends Stack<String> {
 
         // 2. Pop it and assign it as Source. ( D - Source )
         // A -> B -> C -> D
-        pop();
+        logStack.pop();
         // A -> B -> C ( After pop )
 
        // 3. Peek to get the Target. ( C - Target )
-        String target = peek();
+        String target = logStack.peek();
 
        // 4. Write Source -> Target
         writePlantUmlExpression(false, source, target);
