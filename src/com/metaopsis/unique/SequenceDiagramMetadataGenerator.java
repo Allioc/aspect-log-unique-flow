@@ -87,6 +87,34 @@ public class SequenceDiagramMetadataGenerator {
     }
 
     /**
+     * 1. Peek to Ensure the top node that matches the Existing Node
+     * 2. Pop it and assign it as Source.
+     * 3. Peek to get the Target.
+     * 4. Write Source -> Target
+     *
+     * */
+    private void addExitStep(String className) throws IOException {
+        // 1. Peek to Ensure the top node that matches the Existing Node
+        String source = logStack.peek();
+
+        // An Exit step should match with an Entry Step. Otherwise,
+        if(!source.equalsIgnoreCase(className)){
+            throw new RuntimeException("Expected to exit from  method:" + source + ",\n UnExpected method:" + className);
+        }
+
+        // 2. Pop it and assign it as Source. ( D - Source )
+        // A -> B -> C -> D
+        logStack.pop();
+        // A -> B -> C ( After pop )
+
+        // 3. Peek to get the Target. ( C - Target )
+        String target = logStack.peek();
+
+        // 4. Write Source -> Target
+        writePlantUmlExpression(false, source, target);
+    }
+
+    /**
      * @implNote Writes the sequence diagram flow.
      *
      * //TODO: Need to move the package name to properties so that this can be generalized.
@@ -101,34 +129,6 @@ public class SequenceDiagramMetadataGenerator {
         String umlLine = "\""+source +"\"" + arrow+ "\"" + target +"\"";
         writer.write(umlLine);
 
-    }
-
-    /**
-     * 1. Peek to Ensure the top node that matches the Existing Node
-     * 2. Pop it and assign it as Source.
-     * 3. Peek to get the Target.
-     * 4. Write Source -> Target
-     *
-     * */
-    private void addExitStep(String className) throws IOException {
-       // 1. Peek to Ensure the top node that matches the Existing Node
-        String source = logStack.peek();
-
-        // An Exit step should match with an Entry Step. Otherwise,
-        if(!source.equalsIgnoreCase(className)){
-            throw new RuntimeException("UnExpected Node");
-        }
-
-        // 2. Pop it and assign it as Source. ( D - Source )
-        // A -> B -> C -> D
-        logStack.pop();
-        // A -> B -> C ( After pop )
-
-       // 3. Peek to get the Target. ( C - Target )
-        String target = logStack.peek();
-
-       // 4. Write Source -> Target
-        writePlantUmlExpression(false, source, target);
     }
 
 

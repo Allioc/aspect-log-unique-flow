@@ -1,6 +1,5 @@
 package com.metaopsis.unique;
 
-
 import java.io.*;
 import java.util.*;
 import java.util.logging.Level;
@@ -15,29 +14,39 @@ public class UniqueFlowIdentifier {
 
     /**
      * Pass three arguments
-     * 1) folderPath, 2) baseLogFileName, 3) numLogFiles
+     * 1) folderPath, 2) baseLogFileName, 3) numLogFiles, 4) isCompleteFlow
      * Args java com.metaopsis.unique.UniqueFlowIdentifier app_logs app.log 16
      * */
-    public static void main(String args[]) throws IOException {
+    public static void main(String args[]) throws Exception {
 
         String folderPath;
         String baseLogFileName;
         int numLogFiles =0;
+        boolean isCompleteFlow = false; // def
 
-        if(args != null && args.length > 2){
+        if(args != null && args.length > 3){
             folderPath = args[0];
             baseLogFileName = args[1];
             try{
                 numLogFiles = Integer.parseInt(args[2]);
             }catch(NumberFormatException nfe){
                 log.log(Level.SEVERE, "numLogFiles should be numeric!"+ numLogFiles );
+                throw new Exception(nfe.getCause());
+            }
+            try{
+                isCompleteFlow = Boolean.parseBoolean(args[3]);
+            }catch(RuntimeException pe){
+                log.log(Level.SEVERE, "Defaulting to Unique flow"+ isCompleteFlow );
             }
         }else{
             log.log(Level.SEVERE, "Please provide 1) folderPath, 2) baseLogFileName, 3) numLogFiles");
             throw new IllegalArgumentException("Please provide 1) folder path, 2) baseLogFileName, 3) numLogFiles");
-
         }
-        Set<String> uniqueClassesTraversed = new LinkedHashSet<>();
+
+        //Create collection based on the usecase and use it.
+        Collection<String> uniqueClassesTraversed = createClassesTraversed(isCompleteFlow);
+
+
         String appLogFolder = folderPath;
         String appLogBasePath = baseLogFileName;
         int logIndex = numLogFiles;
@@ -51,7 +60,26 @@ public class UniqueFlowIdentifier {
         processUniqueLines(uniqueClassesTraversed);
     }
 
-    private static void processAppLog(Set<String> uniqueClassesTraversed, String appLog) throws IOException {
+    /**
+     * @implNote Create Collection based on Complete or unique flow
+     * @param isCompleteFlow - true - Complete, false - Unique
+     * */
+    private static Collection<String> createClassesTraversed(boolean isCompleteFlow) {
+        if(isCompleteFlow){
+            log.info("Creating Complete Flow");
+            return new ArrayList<>();
+        }else{
+            log.info("Creating Unique Flow");
+            return new LinkedHashSet<>();
+        }
+    }
+
+    /**
+     * @implNote Process each appLog file.
+     * @param uniqueClassesTraversed
+     * @param appLog
+     * */
+    private static void processAppLog(Collection<String> uniqueClassesTraversed, String appLog) throws IOException {
 
         File appLogFile = new File(appLog);
         BufferedReader bufferedReader = null;
@@ -84,13 +112,14 @@ public class UniqueFlowIdentifier {
 
     /**
      * @implNote Process Unique Lines based on {@link SequenceDiagramMetadataGenerator}
+     * @param uniqueClassesTraversed
      * */
     private static void processUniqueLines(Collection<String> uniqueClassesTraversed) {
 
         BufferedWriter
                 buffWriter = null;
         try {
-                buffWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("flow-old.log")));
+                buffWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("flow.log")));
                 buffWriter.append("@startuml");
             SequenceDiagramMetadataGenerator sequenceDiagramMetadataGenerator = new SequenceDiagramMetadataGenerator(buffWriter);
             for (String line : uniqueClassesTraversed) {
