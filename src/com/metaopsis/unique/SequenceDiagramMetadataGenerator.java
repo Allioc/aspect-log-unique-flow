@@ -1,5 +1,6 @@
 package com.metaopsis.unique;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Stack;
@@ -31,6 +32,11 @@ public class SequenceDiagramMetadataGenerator {
     private Stack<String> logStack;
 
     /**
+     * Pick Unique Classes and Methods
+     * */
+    private UniqueClassNameAndMethodGenerator uniqueClassNameAndMethodGenerator;
+
+    /**
      * Writes the output with PlantUml specific syntax.
      * */
     private Writer writer;
@@ -41,6 +47,7 @@ public class SequenceDiagramMetadataGenerator {
     public SequenceDiagramMetadataGenerator(Writer writer){
         this.writer = writer;
         logStack = new Stack<>();
+        uniqueClassNameAndMethodGenerator = new UniqueClassNameAndMethodGenerator();
 
         logStack.push(actor);
     }
@@ -84,6 +91,9 @@ public class SequenceDiagramMetadataGenerator {
 
         // 4. Push NewNode into Stack.
         logStack.push(className);
+
+        // 5. Capture Unique Classes.
+        uniqueClassNameAndMethodGenerator.addClassLog(className);
     }
 
     /**
@@ -132,4 +142,7 @@ public class SequenceDiagramMetadataGenerator {
     }
 
 
+    public void processUniqueClassesAndMethods() throws FileNotFoundException {
+        uniqueClassNameAndMethodGenerator.printUniqueClasses();
+    }
 }

@@ -2,3 +2,4 @@
 out/
 app_logs/
 flow.log
+.DS_Store/

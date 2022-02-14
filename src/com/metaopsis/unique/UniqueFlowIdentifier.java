@@ -58,6 +58,7 @@ public class UniqueFlowIdentifier {
 
         //Process the Unique Lines.
         processUniqueLines(uniqueClassesTraversed);
+
     }
 
     /**
@@ -129,6 +130,10 @@ public class UniqueFlowIdentifier {
             }
             buffWriter.newLine();
             buffWriter.append("@enduml");
+
+            //Process Unique Classes and Methods
+            sequenceDiagramMetadataGenerator.processUniqueClassesAndMethods();
+
         }catch (Exception e){
             e.printStackTrace();
         }finally {
